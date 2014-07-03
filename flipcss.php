@@ -83,8 +83,13 @@ function flipTheCSSFile($css_file, $dir='rtl', $escaped=array()) {
       }
     }
     }
-    
+
     $flipped_file = substr($css_file,0,-4).'-'.$dir.'.css';
+    if (file_exists($flipped_file)) {
+        if (!askToOverwrite(basename($flipped_file))) {
+            $flipped_file = substr($css_file,0,-4).'-'.$dir.'.'.rand(1, 20).'.css';
+        }
+    }
     file_put_contents($flipped_file, $css_flipped);
     echo "\033[92mCSS file ".basename($css_file)." has been flipped to $dir direction.\033[0m\n";
 }
@@ -145,6 +150,20 @@ function flipTheCSSRules($rules) {
         }
     }
     return($return);
+}
+
+function askToOverwrite($file_name) {
+    echo "\033[93m".$file_name." already exists, do you want to overwrite it? (y/n) \033[0m";
+    $input = fgets(STDIN);
+    if (in_array(trim($input), array('y', 'n'))) {
+        if (trim($input)=='y') {
+            return true;
+        }
+    } else {
+        return askToOverwrite($file_name);
+    }
+
+    return false;
 }
 
 ?>
